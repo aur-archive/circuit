@@ -1,0 +1,45 @@
+# Contributor:	Thomas Mudrunka <harvie@email.cz>
+# Maintainer: 	Thomas Mudrunka <harvie@email.cz>
+# You can also contact me on http://blog.harvie.cz/
+# Maintainer since 1.6i: 	Zbynek Moravec <zbynek@ithvezda.cz>
+
+pkgname=circuit
+pkgver=1.6i
+pkgrel=1
+pkgdesc='Electronic circuit simulator written in Java by falstad.com'
+arch=('any')
+url="http://www.falstad.com/circuit/"
+license=('GPL')
+depends=('java-runtime' 'desktop-file-utils')
+makedepends=('imagemagick')
+source=(
+	"http://falstad.com/circuit/circuit.zip"
+	$pkgname.desktop
+)
+
+md5sums=('392f5956d1153755949b167842ccd7cc'
+         '257bdd8b14f71aebbb60f80dc562fa33')
+
+package() {
+	cd ${srcdir}/
+
+	install -d ${pkgdir}/usr/share/java/$pkgname
+	rm -rf "${srcdir}/${pkgname}.zip"
+	cp -rf ${srcdir}/* ${pkgdir}/usr/share/java/$pkgname/
+
+#.desktop + icon files
+	install -D -m644 ${srcdir}/$pkgname.desktop \
+		${pkgdir}/usr/share/applications/$pkgname.desktop
+	mkdir -p ${pkgdir}/usr/share/pixmaps/
+	convert ${srcdir}/favicon.ico ${pkgdir}/usr/share/pixmaps/$pkgname.png
+
+#executable file
+	install -d ${pkgdir}/usr/bin
+	cat > ${pkgdir}/usr/bin/$pkgname << EOF
+#!/bin/sh
+cd /usr/share/java/$pkgname/
+exec java -jar $pkgname.jar \$@
+EOF
+
+	chmod 775 ${pkgdir}/usr/bin/$pkgname
+}
